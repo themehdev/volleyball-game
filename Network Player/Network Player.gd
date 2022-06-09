@@ -14,6 +14,7 @@ var dest = Vector2.ZERO
 
 func _ready():
 	add_to_group("network player")
+	add_to_group("players")
 	GLOBAL.network_player = self
 	$DashCooldown.wait_time = GLOBAL.dash_cooldown
 	$DashTimer.wait_time = GLOBAL.dash_time

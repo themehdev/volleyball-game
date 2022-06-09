@@ -9,6 +9,8 @@ onready var start_pos = position
 var delta_time
 var right_side = true
 var state = "chase"
+var chase_dist = 0
+var opponent
 
 enum {
 	POOR,
@@ -36,6 +38,8 @@ func _ready():
 	$DashCooldown.wait_time = GLOBAL.dash_cooldown
 	$DashTimer.wait_time = GLOBAL.dash_time
 	$Area2D/CollisionShape2D.shape.radius = GLOBAL.hit_radius
+	opponent = get_tree().get_nodes_in_group("players")[0]
+	add_to_group("players")
 
 #Change code depending on side
 
@@ -56,6 +60,7 @@ func _physics_process(delta):
 	if actions.dash and not dashing and can_dash:
 		dashing = true
 		can_dash = false
+		var prev_vel = vel
 		vel *= 0
 		$Area2D/CollisionShape2D.shape.radius *= GLOBAL.dash_radius_factor
 		if actions.right:
@@ -66,6 +71,8 @@ func _physics_process(delta):
 			vel.y = -0.5
 		if actions.down:
 			vel.y = 0.5
+		if vel.length_squared() == 0:
+			vel = prev_vel
 		vel = vel.normalized() * GLOBAL.dash_speed
 		$DashTimer.start()
 	
@@ -114,6 +121,10 @@ func _physics_process(delta):
 func act(delta):
 	var ball = GLOBAL.ball
 	var player = GLOBAL.player
+	if ball.position.distance_to(position) > 700 * 700:
+		chase_dist = 100
+	else:
+		chase_dist = 0
 	if skill_level == GOOD:
 		var future_pos = ball.position + ball.vel.normalized() * 200
 		#Left and right movement
@@ -155,7 +166,6 @@ func act(delta):
 	elif skill_level == EXCELLENT:
 		
 		
-#		Section 1: Movement when ball is coming
 		if is_on_wall() and not actions.jump:
 			actions.jump = true
 		
@@ -175,7 +185,8 @@ func act(delta):
 			sim_ball_vel.y += ball.gravity * delta
 			
 			sim_ball_pos += sim_ball_vel * delta
-#		$Sprite2.global_position = sim_ball_pos
+
+		#This is here for debug purposes. Put in "hit" when done
 		var player_offset = 0
 		var pos_want = Vector2(-GLOBAL.level.in_bounds_size * 0.9, 700)
 		pos_want = Vector2(-100, 700)
@@ -195,41 +206,82 @@ func act(delta):
 		click_pos = to_global(click_pos)
 		
 		if state == "chase":
-			if sim_ball_pos.x > position.x:
+			if sim_ball_pos.x - position.x > chase_dist:
 				actions.right = true
-			else:
+			elif sim_ball_pos.x - position.x < -chase_dist:
 				actions.left = true
+			
+			if abs(sim_ball_pos.x - sim_pos.x) < 200 and ball.vel.x > vel.x:
+				actions.jump = true
 			
 			if abs(sim_ball_pos.x - sim_pos.x) < 200 and abs(sim_ball_pos.y - sim_pos.y) > GLOBAL.jump_height * 0.3 and ball.vel.y > 0:
 				actions.jump = true
-			
+
 			if ball.position.x > 0 and ball.vel.x > 0:
+				
 				if abs(sim_ball_pos.x - sim_pos.x) > GLOBAL.hit_radius * 1.5:
 					actions.dash = true
+					if abs(sim_ball_pos.x - sim_pos.x + GLOBAL.dash_dist * 1.5) > GLOBAL.hit_radius * 1.5 and ball.position.x > position.x:
+						actions.jump = true
+				
 				if sim_ball_pos.distance_to(position) < GLOBAL.hit_radius * 2 and sim_ball_pos.x < position.x:
 					actions.left = true
 					actions.right = false
-			if ball.position.direction_to(position).dot(ball.vel) > 0.5 and ball.position.distance_to(position) > 300 and ball.vel.x > 0:
+			
+			if ball.vel.y < 0 and ball.position.distance_to(position) > 300:
 				state = "get ready"
+				can_dash = abs(sim_ball_pos.x - sim_pos.x) > 500
+			
 			if ball.position.distance_to(position) < GLOBAL.hit_radius and sim_ball_pos.x < GLOBAL.level.in_bounds_size:
 				state = "hit"
+			
+			if ball.position.x < -GLOBAL.level.in_bounds_size * 0.3:
+				state = "resting pos"
 		elif state == "hit":
-			if not (dashing and position.x < ball.position.x):
+			
+			if not (vel.length() > GLOBAL.dash_dist and position.x < ball.position.x):
 				actions.left = false
 				actions.right = false
 				actions.click = true
 			state = "wait"
+		
 		elif state == "get ready":
-			sim_ball_pos.x += 500
-			if sim_ball_pos.x > position.x:
-				actions.right = true
+			
+			if can_dash:
+				sim_ball_pos.x += 500
 			else:
+				sim_ball_pos.x += 200
+			
+			if sim_ball_pos.x - position.x > chase_dist:
+				actions.right = true
+			elif sim_ball_pos.x - position.x < -chase_dist:
 				actions.left = true
+			
 			if abs(sim_ball_pos.y - position.y) < 400:
 				state = "chase"
+				if $DashCooldown.time_left == 0:
+					can_dash = true
+				
 		elif state == "wait":
+			
 			if ball.position.distance_to(position) > GLOBAL.hit_radius:
 				state = "chase"
+			
+		elif state == "resting pos":
+			var dir = opponent.position.direction_to(ball.position)
+			
+			var resting_pos = Vector2(GLOBAL.level.in_bounds_size * 0.2, 700)
+			
+			if resting_pos.x - position.x > chase_dist:
+				actions.right = true
+			elif resting_pos.x - position.x < -chase_dist:
+				actions.left = true
+			if ball.position.x > 0:
+				state = "chase"
+		var dir = opponent.position.direction_to(ball.position)
+			
+		var resting_pos = opponent.position + dir * 1000
+		$Sprite.global_position = Vector2(GLOBAL.level.in_bounds_size * 0.2, 700)
 #	$Sprite.global_position = click_pos
 
 

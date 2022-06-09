@@ -147,7 +147,7 @@ one_shot = true
 [node name="Players" type="Node" parent="."]
 
 [node name="Player" parent="Players" instance=ExtResource( 1 )]
-position = Vector2( -941.852, 665.956 )
+position = Vector2( -900, 700 )
 
 [connection signal="finished" from="UI/FadeIn" to="." method="_on_FadeIn_finished"]
 [connection signal="timeout" from="Timer" to="." method="_on_Timer_timeout"]

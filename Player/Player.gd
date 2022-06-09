@@ -15,6 +15,7 @@ var pos_clock = 0
 
 func _ready():
 	add_to_group("player")
+	add_to_group("players")
 	GLOBAL.player = self
 	$DashCooldown.wait_time = GLOBAL.dash_cooldown
 	$DashTimer.wait_time = GLOBAL.dash_time
@@ -36,6 +37,7 @@ func _physics_process(delta):
 	if Input.is_action_just_pressed("space") and not dashing and can_dash:
 		dashing = true
 		can_dash = false
+		var prev_vel = vel
 		vel *= 0
 		$Area2D/CollisionShape2D.shape.radius *= GLOBAL.dash_radius_factor
 		if Input.is_action_pressed("ui_right"):
@@ -46,6 +48,8 @@ func _physics_process(delta):
 			vel.y = -0.5
 		if Input.is_action_pressed("ui_down"):
 			vel.y = 0.5
+		if vel.length_squared() == 0:
+			vel = prev_vel
 		
 		vel = vel.normalized() * GLOBAL.dash_speed
 		$DashTimer.start()

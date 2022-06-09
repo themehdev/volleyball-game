@@ -20,6 +20,7 @@ var accel = 5000
 var jump_height = 1400
 var dash_stop = 0.4
 var hit_radius = 120
+var dash_dist = dash_speed * dash_stop
 
 
 func _ready():
