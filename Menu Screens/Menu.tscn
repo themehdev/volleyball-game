@@ -1,0 +1,112 @@
+[gd_scene load_steps=13 format=2]
+
+[ext_resource path="res://Roboto/Roboto-Regular.ttf" type="DynamicFontData" id=1]
+[ext_resource path="res://Menu Screens/Fade-in.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Menu Screens/Menu.gd" type="Script" id=3]
+
+[sub_resource type="StyleBoxFlat" id=1]
+bg_color = Color( 0.258824, 0.258824, 0.258824, 1 )
+border_width_left = 10
+border_width_top = 10
+border_width_right = 10
+border_width_bottom = 10
+border_color = Color( 0.298039, 0.298039, 0.298039, 1 )
+corner_radius_top_left = 50
+corner_radius_top_right = 50
+corner_radius_bottom_right = 50
+corner_radius_bottom_left = 50
+
+[sub_resource type="DynamicFont" id=2]
+size = 128
+font_data = ExtResource( 1 )
+
+[sub_resource type="StyleBoxFlat" id=3]
+bg_color = Color( 0.254902, 0.254902, 0.254902, 1 )
+
+[sub_resource type="StyleBoxFlat" id=4]
+bg_color = Color( 0.219608, 0.219608, 0.219608, 1 )
+
+[sub_resource type="StyleBoxFlat" id=5]
+bg_color = Color( 0.219608, 0.219608, 0.219608, 1 )
+
+[sub_resource type="DynamicFont" id=6]
+size = 64
+font_data = ExtResource( 1 )
+
+[sub_resource type="StyleBoxFlat" id=7]
+bg_color = Color( 0.253906, 0.253906, 0.253906, 1 )
+
+[sub_resource type="StyleBoxFlat" id=8]
+bg_color = Color( 0.219608, 0.219608, 0.219608, 1 )
+
+[sub_resource type="DynamicFont" id=9]
+size = 64
+font_data = ExtResource( 1 )
+
+[node name="Menu" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_bottom = 0.000244141
+mouse_filter = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Title" type="Panel" parent="VBoxContainer"]
+margin_right = 1024.0
+margin_bottom = 298.0
+size_flags_vertical = 3
+custom_styles/panel = SubResource( 1 )
+
+[node name="Title" type="Label" parent="VBoxContainer/Title"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_vertical = 6
+custom_fonts/font = SubResource( 2 )
+text = "Volleyball"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Buttons" type="VBoxContainer" parent="VBoxContainer"]
+margin_top = 302.0
+margin_right = 1024.0
+margin_bottom = 600.0
+size_flags_vertical = 3
+
+[node name="Singleplayer" type="Button" parent="VBoxContainer/Buttons"]
+margin_right = 1024.0
+margin_bottom = 147.0
+size_flags_vertical = 3
+custom_styles/hover = SubResource( 3 )
+custom_styles/focus = SubResource( 4 )
+custom_styles/normal = SubResource( 5 )
+custom_fonts/font = SubResource( 6 )
+text = "Singleplayer"
+
+[node name="Multiplayer" type="Button" parent="VBoxContainer/Buttons"]
+margin_top = 151.0
+margin_right = 1024.0
+margin_bottom = 298.0
+size_flags_vertical = 3
+custom_styles/hover = SubResource( 7 )
+custom_styles/normal = SubResource( 8 )
+custom_fonts/font = SubResource( 9 )
+text = "Multiplayer"
+
+[node name="FadeIn" parent="." instance=ExtResource( 2 )]
+
+[connection signal="button_up" from="VBoxContainer/Buttons/Singleplayer" to="." method="_on_Singleplayer_button_up"]
+[connection signal="button_up" from="VBoxContainer/Buttons/Multiplayer" to="." method="_on_Multiplayer_button_up"]
+[connection signal="finished" from="FadeIn" to="." method="_on_Fadein_finished"]

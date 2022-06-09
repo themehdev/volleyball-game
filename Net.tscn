@@ -1,0 +1,39 @@
+[gd_scene load_steps=3 format=2]
+
+[sub_resource type="CapsuleShape2D" id=1]
+radius = 11.5
+height = 410.458
+
+[sub_resource type="CapsuleShape2D" id=2]
+radius = 11.5
+height = 2317.42
+
+[node name="Net" type="Node2D"]
+
+[node name="BallNet" type="StaticBody2D" parent="."]
+collision_layer = 2
+collision_mask = 5
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BallNet"]
+shape = SubResource( 1 )
+
+[node name="ColorRect" type="ColorRect" parent="BallNet"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -12.0
+margin_top = -217.0
+margin_right = 12.0
+margin_bottom = 218.0
+color = Color( 0.431373, 0.431373, 0.431373, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="PlayerNet" type="StaticBody2D" parent="."]
+position = Vector2( 0, -508.188 )
+collision_layer = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PlayerNet"]
+shape = SubResource( 2 )
