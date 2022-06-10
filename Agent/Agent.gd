@@ -310,14 +310,14 @@ func act(delta):
 						click_pos = Vector2(-200, -350)
 						actions.jump = true
 					actions.left = true
-				elif position.x <= 200 and clicks == 0 and position.y - GLOBAL.hit_radius > 425 and ball.position.y > 425:
+				elif position.x <= 200 and clicks == 0 and position.y - GLOBAL.hit_radius > 425 and ball.position.y > 400:
 					print("seting close")
 					click_pos = Vector2(position.x + 7 if not vel.x > 0 else 0, position.y - 20)
 					actions.left = false
 					actions.right = false
 					actions.jump = true
 				else :
-					if position.y - GLOBAL.hit_radius <= 425 and ball.position.y <= 425:
+					if position.y - GLOBAL.hit_radius <= 425 and ball.position.y <= 375 and position.x < 200:
 						print("spiking")
 						click_pos = Vector2(-200, 821 - position.x/2)
 					elif position.y - GLOBAL.hit_radius + 25 < 610  and ball.position.y < 610:
