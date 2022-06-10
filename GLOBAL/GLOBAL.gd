@@ -9,11 +9,6 @@ var has_authority = false
 var singleplayer = true
 var level
 var p1_score = 0
-enum {
-	BEGINNER,
-	GOOD,
-	EXPERT
-}
 var skill_level
 
 
