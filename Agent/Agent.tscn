@@ -22,7 +22,6 @@ var throwing_hands = false
 var hand_state = 0
 var ball_pos = Vector2.ZERO
 var click_pos = Vector2.ZERO
-var right_side
 
 func _ready():
 	left_foot = $LeftFoot.rect_global_position
@@ -30,9 +29,6 @@ func _ready():
 
 func _process(delta):
 	ball_pos = GLOBAL.ball.position
-	if not right_side and global_position.x > 0 and false:
-		global_position.x *= -1
-		ball_pos.x *= -1
 	$LeftFoot.rect_global_position += ((left_foot - $LeftFoot.rect_global_position) / 4) * 60 * delta
 	$RightFoot.rect_global_position += ((right_foot - $RightFoot.rect_global_position)) / 4 * 60 * delta
 	$RightHand.rect_global_position += ((right_hand - $RightHand.rect_global_position)) / 4 * 60 * delta

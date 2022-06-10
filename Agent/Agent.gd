@@ -7,7 +7,7 @@ var click_pos = Vector2.ZERO
 var ball_in_range = false
 onready var start_pos = position
 var delta_time
-export var right_side = false
+export var right_side = true
 var state = "chase"
 var chase_dist = 0
 var opponent
@@ -39,7 +39,6 @@ func _ready():
 	$DashCooldown.wait_time = GLOBAL.dash_cooldown
 	$DashTimer.wait_time = GLOBAL.dash_time
 	$Area2D/CollisionShape2D.shape.radius = GLOBAL.hit_radius
-	$Graphics.right_side = right_side
 
 #Change code depending on side
 
@@ -192,8 +191,12 @@ func act(delta):
 		var pos_want = Vector2(-GLOBAL.level.in_bounds_size * 0.9, 700)
 		pos_want = Vector2(-100 * side, 700)
 		
-		if side == 1:
-			pos_want.x = -10 #GOOD
+#		if side == 1:
+#
+#			randomize()
+#			pos_want.x = rand_range(-50, -500)
+#		else:
+#			pos_want.x = 10 #GOOD
 		
 		click_pos = pos_want
 		click_pos = to_local(click_pos)
@@ -223,7 +226,7 @@ func act(delta):
 			if abs(sim_ball_pos.x - sim_pos.x) < 200 and abs(sim_ball_pos.y - sim_pos.y) > GLOBAL.jump_height * 0.3 and ball.vel.y > 0:
 				actions.jump = true
 
-			if ball.position.x > 0 and ball.vel.x > 0:
+			if ball.position.x > 0 and ball.vel.x > 0: #Work on this!
 				
 				if abs(sim_ball_pos.x - sim_pos.x) > GLOBAL.hit_radius * 1.5:
 					actions.dash = true
@@ -246,7 +249,7 @@ func act(delta):
 			
 		elif state == "hit":
 			
-			if not (vel.length() > GLOBAL.dash_dist and position.x < ball.position.x):
+			if not (vel.length() > GLOBAL.dash_speed * 0.7) or true:
 				actions.left = false
 				actions.right = false
 				actions.click = true
