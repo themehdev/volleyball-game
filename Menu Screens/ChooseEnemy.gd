@@ -2,7 +2,7 @@ extends Control
 enum {
 	BEGINNER,
 	GOOD,
-	EXPERT
+	MASTER
 }
 var skill_level
 
@@ -25,5 +25,5 @@ func _on_Beginner_pressed():
 func _on_Good_pressed():
 	skill_level = GOOD
 
-func _on_Expert_pressed():
-	skill_level = EXPERT
+func _on_Master_pressed():
+	skill_level = MASTER
