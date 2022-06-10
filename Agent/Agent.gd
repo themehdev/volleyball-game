@@ -278,11 +278,9 @@ func act(delta):
 					actions.right = false
 				if sim_ball_pos.x < 300 and position.x < 300:
 					actions.jump = true
-			if ball.position.x < 50 and ball.vel.x > 0.15 and clicks == 0:
+			if ball.position.x < 0 and ball.vel.x > 0.15 and clicks == 0 and position.x - GLOBAL.hit_radius + 20 - GLOBAL.dash_length < sim_ball_pos.x:
 				state = "get ready"
-				# make this only go if we have all of our hits.
-				#print("anticipating where the ball is going to come")
-				dashes += 0
+				print("premoving")
 			if ball.position.distance_to(position) < GLOBAL.hit_radius and sim_ball_pos.x < GLOBAL.level.in_bounds_size:
 				state = "hit"
 		elif state == "hit":
@@ -312,14 +310,14 @@ func act(delta):
 						click_pos = Vector2(-200, -350)
 						actions.jump = true
 					actions.left = true
-				elif position.x <= 200 and clicks == 0 and position.y > 450 and ball.position.y > 550:
+				elif position.x <= 200 and clicks == 0 and position.y - GLOBAL.hit_radius > 425 and ball.position.y > 425:
 					print("seting close")
 					click_pos = Vector2(position.x + 7 if not vel.x > 0 else 0, position.y - 20)
 					actions.left = false
 					actions.right = false
 					actions.jump = true
 				else :
-					if position.y - GLOBAL.hit_radius <= 450 and ball.position.y <= 550:
+					if position.y - GLOBAL.hit_radius <= 425 and ball.position.y <= 425:
 						print("spiking")
 						click_pos = Vector2(-200, 821 - position.x/2)
 					elif position.y - GLOBAL.hit_radius + 25 < 610  and ball.position.y < 610:
@@ -327,20 +325,15 @@ func act(delta):
 						print("tapping over")
 					else :
 						print("close hit")
-						click_pos = Vector2.ZERO
+						click_pos = Vector2(position.x - 100, -200)
 					actions.left = true
 					actions.jump = true
 				actions.click = true
 				state = "wait"
 		elif state == "get ready":
-			sim_ball_pos.x += 500
-			if sim_ball_pos.x > position.x:
-				actions.right = true
-				actions.left = false
-			else:
-				actions.left = true
-				actions.right = false
-			if abs(sim_ball_pos.y - position.y) < 400 or ball.position.x > position.x + GLOBAL.hit_radius:
+			actions.right = true
+			actions.left = false
+			if abs(sim_ball_pos.y - position.y) < 400 or ball.position.x > position.x + GLOBAL.hit_radius - 20:
 				state = "chase"
 		elif state == "wait":
 			if ball.position.distance_to(position) > GLOBAL.hit_radius:
