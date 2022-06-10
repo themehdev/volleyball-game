@@ -1,6 +1,6 @@
 [gd_scene load_steps=12 format=2]
 
-[ext_resource path="res://Agent/Agent.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Player/Player.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Ball/Ball.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Net.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Level/Level.gd" type="Script" id=4]
@@ -146,9 +146,8 @@ one_shot = true
 
 [node name="Players" type="Node" parent="."]
 
-[node name="Agent" parent="Players" instance=ExtResource( 1 )]
-position = Vector2( -732.551, 756.336 )
-right_side = false
+[node name="Player" parent="Players" instance=ExtResource( 1 )]
+position = Vector2( -889.527, 746.822 )
 
 [connection signal="finished" from="UI/FadeIn" to="." method="_on_FadeIn_finished"]
 [connection signal="timeout" from="Timer" to="." method="_on_Timer_timeout"]
