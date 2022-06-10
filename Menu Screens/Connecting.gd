@@ -20,3 +20,7 @@ func _on_Timer_timeout():
 		$VBoxContainer/Label.text += "."
 		if $VBoxContainer/Label.text == "Connecting....":
 			$VBoxContainer/Label.text = "Connecting"
+
+
+func _on_Button_pressed():
+	get_tree().change_scene("res://Menu Screens/Menu.tscn")
