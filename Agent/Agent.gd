@@ -283,7 +283,7 @@ func act(delta):
 			if ball.position.distance_to(position) < GLOBAL.hit_radius and sim_ball_pos.x < GLOBAL.level.in_bounds_size:
 				state = "hit"
 		elif state == "hit":
-			if (not dashing or ball.position.y > 700) and (clicks == 0 or (sim_ball_pos.x > 0 or sim_ball_vel.x > 0)) :
+			if (not dashing or ball.position.y > 700) and (clicks == 0 or (ball.position.x > 0 or ball.vel.x > 0) and (vel.y <= 0 or ball.position.x < 200)) :
 				if(not clicks == 0 and (sim_ball_pos.x < 0 and sim_ball_vel.x < 0)):
 					state = "wait"
 					return
@@ -311,7 +311,7 @@ func act(delta):
 					actions.left = true
 				elif position.x <= 200 and clicks == 0 and position.y > 450 and ball.position.y > 550:
 					print("seting close")
-					click_pos = Vector2(position.x + 7, position.y - 20)
+					click_pos = Vector2(position.x + 7 if not vel.x > 0 else 0, position.y - 20)
 					actions.left = false
 					actions.jump = true
 				else :
