@@ -316,6 +316,7 @@ func act(delta):
 					print("seting close")
 					click_pos = Vector2(position.x + 7 if not vel.x > 0 else 0, position.y - 20)
 					actions.left = false
+					actions.right = false
 					actions.jump = true
 				else :
 					if position.y - GLOBAL.hit_radius <= 450 and ball.position.y <= 550:
