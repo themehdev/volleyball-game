@@ -14,6 +14,8 @@ onready var in_bounds_size = $Walls/InBounds/CollisionShape2D.shape.extents.x
 signal update_score(p_score, a_score)
 
 func _ready():
+	start_timer(3, "go")
+	$Ball.physics = false
 	$Ball.connect("hit_ground", self, "ball_hit_ground")
 	$Ball.connect("hit", self, "ball_hit")
 	connect("update_score", $UI, "update_score")
@@ -37,6 +39,7 @@ func add_opponent():
 		agent.skill_level = agent.EXCELLENT
 
 func _process(_delta):
+	GLOBAL.p1_score = p1_score
 	set_camera()
 
 func start_timer(wait, action):

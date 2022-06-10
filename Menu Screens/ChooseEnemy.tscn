@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=14 format=2]
 
 [ext_resource path="res://Roboto/Roboto-Regular.ttf" type="DynamicFontData" id=1]
 [ext_resource path="res://Menu Screens/ChooseEnemy.gd" type="Script" id=2]
@@ -20,6 +20,10 @@ corner_radius_bottom_left = 50
 size = 100
 font_data = ExtResource( 1 )
 
+[sub_resource type="DynamicFont" id=6]
+size = 64
+font_data = ExtResource( 1 )
+
 [sub_resource type="StyleBoxFlat" id=3]
 bg_color = Color( 0.254902, 0.254902, 0.254902, 1 )
 
@@ -29,17 +33,23 @@ bg_color = Color( 0.219608, 0.219608, 0.219608, 1 )
 [sub_resource type="StyleBoxFlat" id=5]
 bg_color = Color( 0.219608, 0.219608, 0.219608, 1 )
 
-[sub_resource type="DynamicFont" id=6]
+[sub_resource type="DynamicFont" id=7]
 size = 64
 font_data = ExtResource( 1 )
+
+[sub_resource type="StyleBoxFlat" id=8]
+bg_color = Color( 0.254902, 0.254902, 0.254902, 1 )
+
+[sub_resource type="StyleBoxFlat" id=9]
+bg_color = Color( 0.219608, 0.219608, 0.219608, 1 )
+
+[sub_resource type="StyleBoxFlat" id=10]
+bg_color = Color( 0.219608, 0.219608, 0.219608, 1 )
 
 [node name="ChooseEnemy" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource( 2 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 anchor_right = 1.0
@@ -78,79 +88,44 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Noob" type="Button" parent="VBoxContainer/Opponents"]
-margin_right = 338.0
-margin_bottom = 197.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-custom_styles/hover = SubResource( 3 )
-custom_styles/focus = SubResource( 4 )
-custom_styles/normal = SubResource( 5 )
-custom_fonts/font = SubResource( 6 )
-text = "Noob"
-
 [node name="Beginner" type="Button" parent="VBoxContainer/Opponents"]
-margin_left = 342.0
-margin_right = 680.0
-margin_bottom = 197.0
+margin_right = 338.0
+margin_bottom = 398.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
+custom_fonts/font = SubResource( 6 )
 custom_styles/hover = SubResource( 3 )
 custom_styles/focus = SubResource( 4 )
 custom_styles/normal = SubResource( 5 )
-custom_fonts/font = SubResource( 6 )
 text = "Beginner"
 
 [node name="Good" type="Button" parent="VBoxContainer/Opponents"]
-margin_left = 684.0
-margin_right = 1022.0
-margin_bottom = 197.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-custom_styles/hover = SubResource( 3 )
-custom_styles/focus = SubResource( 4 )
-custom_styles/normal = SubResource( 5 )
-custom_fonts/font = SubResource( 6 )
-text = "Good"
-
-[node name="Skilled" type="Button" parent="VBoxContainer/Opponents"]
-margin_top = 201.0
-margin_right = 338.0
-margin_bottom = 398.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-custom_styles/hover = SubResource( 3 )
-custom_styles/focus = SubResource( 4 )
-custom_styles/normal = SubResource( 5 )
-custom_fonts/font = SubResource( 6 )
-text = "Skilled"
-
-[node name="Expert" type="Button" parent="VBoxContainer/Opponents"]
 margin_left = 342.0
-margin_top = 201.0
 margin_right = 680.0
 margin_bottom = 398.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
+custom_fonts/font = SubResource( 6 )
 custom_styles/hover = SubResource( 3 )
 custom_styles/focus = SubResource( 4 )
 custom_styles/normal = SubResource( 5 )
-custom_fonts/font = SubResource( 6 )
-text = "Expert"
+text = "Good"
 
 [node name="Master" type="Button" parent="VBoxContainer/Opponents"]
 margin_left = 684.0
-margin_top = 201.0
 margin_right = 1022.0
 margin_bottom = 398.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
-custom_styles/hover = SubResource( 3 )
-custom_styles/focus = SubResource( 4 )
-custom_styles/normal = SubResource( 5 )
-custom_fonts/font = SubResource( 6 )
+custom_fonts/font = SubResource( 7 )
+custom_styles/hover = SubResource( 8 )
+custom_styles/focus = SubResource( 9 )
+custom_styles/normal = SubResource( 10 )
 text = "Master"
 
 [node name="FadeIn" parent="." instance=ExtResource( 3 )]
 
+[connection signal="pressed" from="VBoxContainer/Opponents/Beginner" to="." method="_on_Beginner_pressed"]
+[connection signal="pressed" from="VBoxContainer/Opponents/Good" to="." method="_on_Good_pressed"]
+[connection signal="pressed" from="VBoxContainer/Opponents/Master" to="." method="_on_Master_pressed"]
 [connection signal="finished" from="FadeIn" to="." method="_on_FadeIn_finished"]
