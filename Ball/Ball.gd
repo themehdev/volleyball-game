@@ -7,6 +7,7 @@ var gravity = 1200 #14
 var last_hit = null
 var physics = true
 var max_speed = 2400
+var spawn
 
 signal hit_ground
 signal hit(who)
@@ -14,6 +15,7 @@ signal hit(who)
 func _ready():
 	add_to_group("ball")
 	GLOBAL.ball = self
+	spawn = position
 
 func new_data(_pos, _vel):
 	position.x = -_pos.x
@@ -23,7 +25,7 @@ func new_data(_pos, _vel):
 	vel.y = _vel.y
 
 func reset():
-	position *= 0
+	position = spawn
 	vel *= 0
 	last_hit = null
 
@@ -44,6 +46,10 @@ func _draw():
 	draw_circle(Vector2.ZERO, $CollisionShape2D.shape.radius, Color(0.284119, 0.720484, 0.765625))
 
 func hit(pos, dir, v, power, who):
+	
+	if position.x < 10 and position.x > -10:
+		return
+	
 	emit_signal("hit", who)
 	last_hit = who
 	var rel_vec = position - pos

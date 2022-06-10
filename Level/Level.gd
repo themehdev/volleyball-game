@@ -8,7 +8,7 @@ var p1
 var p2
 var p1_score = 0
 var p2_score = 0
-var p1_on_left = true #p1 should always be on left, but this is here in case i need to switch it
+var p1_on_left = false #p1 should always be on left, but this is here in case i need to switch it
 onready var in_bounds_size = $Walls/InBounds/CollisionShape2D.shape.extents.x
 
 signal update_score(p_score, a_score)
@@ -24,16 +24,19 @@ func _ready():
 	p2 = $Players.get_child(1)
 	NetworkManager.connect("action", self, "action")
 	GLOBAL.level = self
+	p1.reset()
+	p2.reset()
 
 func add_opponent():
 	if not GLOBAL.singleplayer:
 		var agent = load("res://Network Player/Network Player.tscn").instance()
-		agent.position = Vector2(900, 700)
+		agent.position = $Players.get_child(0).position * Vector2(-1, 1)
 		$Players.add_child(agent)
 	else:
 		var agent = load("res://Agent/Agent.tscn").instance()
-		agent.position = Vector2(900, 700)
+		agent.position = $Players.get_child(0).position * Vector2(-1, 1)
 		$Players.add_child(agent)
+		agent.skill_level = agent.EXCELLENT
 
 func _process(_delta):
 	GLOBAL.p1_score = p1_score

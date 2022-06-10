@@ -8,8 +8,11 @@ var click_pos_poor = Vector2(0, 100)
 var ball_in_range = false
 onready var start_pos = position
 var delta_time
-var right_side = true
+export var right_side = true
 var state = "chase"
+var chase_dist = 0
+var opponent
+var should_dash = false
 var dashes = 0
 var clicks = 0
 var p1_score = 0
@@ -17,7 +20,8 @@ var p1_score = 0
 enum {
 	BEGINNER,
 	GOOD,
-	MASTER
+	MASTER,
+  SKILLED
 }
 
 export var skill_level = 0
@@ -52,7 +56,6 @@ func _ready():
 
 func _physics_process(delta):
 	delta_time = delta
-	right_side = position.x > 0
 	in_air += 60 * delta
 	if not GLOBAL.p1_score == p1_score and skill_level == MASTER:
 		print("They scored!\nWhat went wrong?")
@@ -71,6 +74,7 @@ func _physics_process(delta):
 	if actions.dash and not dashing and can_dash:
 		dashing = true
 		can_dash = false
+		var prev_vel = vel
 		vel *= 0
 		$Area2D/CollisionShape2D.shape.radius *= GLOBAL.dash_radius_factor
 		if actions.right:
@@ -81,6 +85,8 @@ func _physics_process(delta):
 			vel.y = -0.5
 		if actions.down:
 			vel.y = 0.5
+		if vel.length_squared() == 0:
+			vel = prev_vel
 		vel = vel.normalized() * GLOBAL.dash_speed
 		$DashTimer.start()
 	
@@ -118,6 +124,9 @@ func _physics_process(delta):
 		$Graphics.animation_hands()
 	$Graphics.vel = vel
 	$Graphics.click_pos = click_pos
+	if not right_side and false:
+		$Graphics.vel.x *= -1
+		$Graphics.click_pos.x *= -1
 	$Graphics.in_air = in_air
 	
 	actions.left = false
@@ -127,10 +136,15 @@ func _physics_process(delta):
 	actions.dash = false
 
 func act(delta):
+	var side = 1 if right_side else -1
 	if GLOBAL.player.clicked:
 		clicks = 0
 	var ball = GLOBAL.ball
 	var player = GLOBAL.player
+	if ball.position.distance_to(position) > 700 * 700:
+		chase_dist = 100
+	else:
+		chase_dist = 0
 	if skill_level == GOOD:
 #		Section 1: Movement when ball is coming
 		if is_on_wall() and not actions.jump:
@@ -179,6 +193,11 @@ func act(delta):
 			
 			if abs(sim_ball_pos.x - sim_pos.x) < 200 and abs(sim_ball_pos.y - sim_pos.y) > GLOBAL.jump_height * 0.3 and ball.vel.y > 0:
 				actions.jump = true
+			elif future_pos.y > position.y:
+				actions.down = true
+		
+#		$Sprite.global_position = best_pos
+	elif skill_level == EXCELLENT:
 			
 			if ball.position.x > 0 and ball.vel.x > 0:
 				
@@ -231,34 +250,46 @@ func act(delta):
 			sim_ball_vel.y += ball.gravity * delta
 			
 			sim_ball_pos += sim_ball_vel * delta
-#		$Sprite2.global_position = sim_ball_pos
+
+		#This is here for debug purposes. Put in "hit" when done
 		var player_offset = 0
 		var pos_want = Vector2(-GLOBAL.level.in_bounds_size * 0.9, 700)
-		pos_want = Vector2(-100, 700)
+		pos_want = Vector2(-100 * side, 700)
+		
+#		if side == 1:
+#
+#			randomize()
+#			pos_want.x = rand_range(-50, -500)
+#		else:
+#			pos_want.x = 10 #GOOD
 		
 		click_pos = pos_want
 		click_pos = to_local(click_pos)
-		var rot = PI * min(abs(pos_want.x - position.x) / 5000, 0.5)
+		var rot = PI * min(abs(pos_want.x - position.x) / 5000, 0.5 * side)
 		rot += 0.2
 		click_pos = click_pos.rotated(rot)
+		click_pos.x = -abs(click_pos.x) * side
 		rot += (vel.x + -vel.y) * 0.00005
+		var c = 0
 		while true:
-			var check = raycast(position, click_pos, 3)
+			var check = raycast(position, click_pos, 2)
 			click_pos = click_pos.rotated(PI / 24)
-			if not check.is_collision:
+			if not check.is_collision or c > 100:
 				break
+			c += 1
 		click_pos.x = -abs(click_pos.x)
 		click_pos = to_global(click_pos)
 		
 		if state == "chase":
-			if sim_ball_pos.x > position.x:
+			if sim_ball_pos.x - position.x > chase_dist:
 				actions.right = true
-			else:
+			elif sim_ball_pos.x - position.x < -chase_dist:
 				actions.left = true
 			
-			if abs(sim_ball_pos.x - sim_pos.x) < 200 and abs(sim_ball_pos.y - sim_pos.y) > GLOBAL.jump_height * 0.3 and ball.vel.y > 0:
+			if abs(sim_ball_pos.x - sim_pos.x) < 200 and ball.vel.x * side > vel.x * side:
 				actions.jump = true
 			
+
 			if ball.position.x > 0 and ball.vel.x > 0:
 				
 				if (ball.position.x > position.x + GLOBAL.hit_radius and ball.vel.x > 0.2):
@@ -283,6 +314,10 @@ func act(delta):
 				print("premoving")
 			if ball.position.distance_to(position) < GLOBAL.hit_radius and sim_ball_pos.x < GLOBAL.level.in_bounds_size:
 				state = "hit"
+			
+			if abs(ball.position.x - position.x) > 900 and ball.position.direction_to(opponent.position).dot(ball.vel) > 0.2:
+				state = "resting pos"
+			
 		elif state == "hit":
 			if (not dashing or ball.position.y > 700) and (clicks == 0 or (ball.position.x > 0 or ball.vel.x > 0) and (vel.y <= 0 or ball.position.x < 200)) :
 				if(not clicks == 0 and (sim_ball_pos.x < 0 and sim_ball_vel.x < 0)):
@@ -363,6 +398,11 @@ func act(delta):
 			if ball.position.x > position.x:
 				actions.right = true
 			else:
+				sim_ball_pos.x += 200 * side
+			
+			if sim_ball_pos.x - position.x > chase_dist:
+				actions.right = true
+			elif sim_ball_pos.x - position.x < -chase_dist:
 				actions.left = true
 			
 			if ball.position.x > 0 and ball.vel.x > 0:
@@ -378,15 +418,121 @@ func act(delta):
 			print("hit")
 			state = "wait"
 		elif state == "wait":
+			
 			if ball.position.distance_to(position) > GLOBAL.hit_radius:
 				state = "chase"
+
+			
+		elif state == "resting pos":
+			var dir = opponent.position.direction_to(ball.position)
+			
+			var resting_pos = Vector2(GLOBAL.level.in_bounds_size * 0.2 * side, 700)
+			
+			if (resting_pos.x - position.x) > chase_dist:
+				actions.right = true
+			elif (resting_pos.x - position.x) < -chase_dist:
+				actions.left = true
+			if ball.position.x * side > 0:
+				state = "chase"
+  elif skill_level == SKILLED:
+    	
+		
+#		Section 1: Movement when ball is coming
+		if is_on_wall() and not actions.jump:
+			actions.jump = true
+		
+		var sim_ball_pos = ball.position
+		var sim_pos = position
+		var sim_vel = vel
+		var sim_ball_vel = ball.vel
+		var depth = 10
+		for i in depth:
+			if actions.right:
+				sim_vel.x += GLOBAL.accel * delta
+			if actions.left:
+				sim_vel.x += -GLOBAL.accel * delta
+			sim_vel.x *= (60.0 - GLOBAL.friction) * delta
+			sim_pos.x += sim_vel.x * delta
+			sim_ball_vel.x *= (60.0 - ball.friction) * delta
+			sim_ball_vel.y += ball.gravity * delta
+			
+			sim_ball_pos += sim_ball_vel * delta
+
+		#This is here for debug purposes. Put in "hit" when done
+		var player_offset = 0
+		var pos_want = Vector2(-GLOBAL.level.in_bounds_size * 0.9, 700)
+		pos_want = Vector2(-100 * side, 700)
+		
+#		if side == 1:
+#
+#			randomize()
+#			pos_want.x = rand_range(-50, -500)
+#		else:
+#			pos_want.x = 10 #GOOD
+		
+		click_pos = pos_want
+		click_pos = to_local(click_pos)
+		var rot = PI * min(abs(pos_want.x - position.x) / 5000, 0.5 * side)
+		rot += 0.2
+		click_pos = click_pos.rotated(rot)
+		click_pos.x = -abs(click_pos.x) * side
+		rot += (vel.x + -vel.y) * 0.00005
+		var c = 0
+		while true:
+			var check = raycast(position, click_pos, 2)
+			click_pos = click_pos.rotated(PI / 24)
+			if not check.is_collision or c > 100:
+				break
+			c += 1
+		click_pos.x = -abs(click_pos.x)
+		click_pos = to_global(click_pos)
+		
+		if state == "chase":
+			if sim_ball_pos.x - position.x > chase_dist:
+				actions.right = true
+			elif sim_ball_pos.x - position.x < -chase_dist:
+				actions.left = true
+			
+			if abs(sim_ball_pos.x - sim_pos.x) < 200 and ball.vel.x * side > vel.x * side:
+				actions.jump = true
+    if abs(sim_ball_pos.x - sim_pos.x) < 200 and abs(sim_ball_pos.y - sim_pos.y) > GLOBAL.jump_height * 0.3 and ball.vel.y > 0:
+				actions.jump = true
+
+			if ball.position.x > 0 and ball.vel.x > 0: #Work on this!
+				
+				if abs(sim_ball_pos.x - sim_pos.x) > GLOBAL.hit_radius * 1.5:
+					actions.dash = true
+					if abs(sim_ball_pos.x - sim_pos.x + GLOBAL.dash_dist * 1.5) > GLOBAL.hit_radius * 1.5 and ball.position.x > position.x:
+						actions.jump = true
+				
+				if sim_ball_pos.distance_to(position) < GLOBAL.hit_radius * 2 and sim_ball_pos.x < position.x:
+					actions.left = true
+					actions.right = false
+			
+			if ball.vel.y < 0 and ball.position.distance_to(position) > 300:
+				state = "get ready"
+				should_dash = abs(sim_ball_pos.x - sim_pos.x) > 700
+      if not (vel.length() > GLOBAL.dash_speed * 0.7) or true:
+				actions.left = false
+      state = "wait"
+		
+		elif state == "get ready":
+			
+			if should_dash:
+				sim_ball_pos.x += 700 * side
+      if abs(sim_ball_pos.y - position.y) < 400:
+				state = "chase"
+       
+			
+	$Label.text = state as String
+	$Sprite.global_position = click_pos
 		
 #	$Sprite.global_position = click_pos
-
 
 func reset():
 	position = start_pos
 	can_dash = true
+	opponent = GLOBAL.level.p1 if GLOBAL.level.p1 != self else GLOBAL.level.p2
 
 func click():
 	if register_click and not raycast(position, GLOBAL.ball.position, 2).is_collision and GLOBAL.hit_counter > -2:
