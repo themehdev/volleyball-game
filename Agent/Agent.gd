@@ -17,7 +17,7 @@ var p1_score = 0
 enum {
 	BEGINNER,
 	GOOD,
-	EXPERT
+	MASTER
 }
 
 export var skill_level = 0
@@ -35,6 +35,7 @@ var actions = {
 }
 
 func _ready():
+	print("Log for debugging the AI,\nmainly when I am working with the expert")
 	GLOBAL.agent = self
 	$DashCooldown.wait_time = GLOBAL.dash_cooldown
 	$DashTimer.wait_time = GLOBAL.dash_time
@@ -44,7 +45,7 @@ func _ready():
 		print("Skill level: beginner")
 	elif skill_level == GOOD:
 		print("Skill level: good")
-	elif skill_level == EXPERT:
+	elif skill_level == MASTER:
 		print("Skill level: expert")
 
 #Change code depending on side
@@ -53,8 +54,10 @@ func _physics_process(delta):
 	delta_time = delta
 	right_side = position.x > 0
 	in_air += 60 * delta
-	if not GLOBAL.p1_score == p1_score:
+	if not GLOBAL.p1_score == p1_score and skill_level == MASTER:
 		print("They scored!\nWhat went wrong?")
+		if dashing:
+			print("We had to dash.")
 		p1_score = GLOBAL.p1_score
 	if is_on_floor():
 		in_air = 0
@@ -205,7 +208,7 @@ func act(delta):
 				state = "chase"
 			
 
-	elif skill_level == EXPERT:
+	elif skill_level == MASTER :
 		
 		
 #		Section 1: Movement when ball is coming
@@ -264,12 +267,12 @@ func act(delta):
 					actions.dash = true
 					if not dashing and can_dash:
 						print("dash back")
-				if (ball.position.x < position.x - GLOBAL.dash_length):
+				if (ball.position.x < position.x - GLOBAL.dash_length - GLOBAL.hit_radius - 400 + ball.position.y - 90 if ball.vel.y > 0.15 else 0):
 					actions.right = false
 					actions.left = true
 					actions.dash = true
 					if not dashing and can_dash:
-						print("dash hit")
+						print("dash forward")
 				if sim_ball_pos.distance_to(position) < GLOBAL.hit_radius * 2 and sim_ball_pos.x < position.x:
 					actions.left = true
 					actions.right = false
@@ -315,16 +318,17 @@ func act(delta):
 					actions.left = false
 					actions.jump = true
 				else :
-					if position.y <= 450 and ball.position.y <= 550:
+					if position.y - GLOBAL.hit_radius <= 450 and ball.position.y <= 550:
 						print("spiking")
-						click_pos = Vector2(-200, 821 - position.x/3)
-						actions.left = true
-						actions.jump = true
+						click_pos = Vector2(-200, 821 - position.x/2)
+					elif position.y - GLOBAL.hit_radius + 25 < 610  and ball.position.y < 610:
+						click_pos = Vector2(0, 450 - position.x/2)
+						print("tapping over")
 					else :
 						print("close hit")
-						click_pos = Vector2(-ball.position.x, 0)
-						actions.left = false
-						actions.jump = true
+						click_pos = Vector2.ZERO
+					actions.left = true
+					actions.jump = true
 				actions.click = true
 				state = "wait"
 		elif state == "get ready":
