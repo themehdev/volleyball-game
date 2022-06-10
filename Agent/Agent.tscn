@@ -22,6 +22,7 @@ var throwing_hands = false
 var hand_state = 0
 var ball_pos = Vector2.ZERO
 var click_pos = Vector2.ZERO
+var right_side
 
 func _ready():
 	left_foot = $LeftFoot.rect_global_position
@@ -29,6 +30,9 @@ func _ready():
 
 func _process(delta):
 	ball_pos = GLOBAL.ball.position
+	if not right_side and global_position.x > 0 and false:
+		global_position.x *= -1
+		ball_pos.x *= -1
 	$LeftFoot.rect_global_position += ((left_foot - $LeftFoot.rect_global_position) / 4) * 60 * delta
 	$RightFoot.rect_global_position += ((right_foot - $RightFoot.rect_global_position)) / 4 * 60 * delta
 	$RightHand.rect_global_position += ((right_hand - $RightHand.rect_global_position)) / 4 * 60 * delta
@@ -161,6 +165,7 @@ load_path = "res://.import/icon.png-487276ed1e3a0c39cad0279d744ee560.stex"
 
 [node name="Agent" type="KinematicBody2D"]
 z_index = 3
+collision_mask = 0
 script = ExtResource( 1 )
 
 [node name="Graphics" type="Node2D" parent="."]
@@ -277,10 +282,11 @@ z_index = -1
 shape = SubResource( 2 )
 
 [node name="Label" type="Label" parent="."]
-margin_left = -19.6757
-margin_top = -57.6821
-margin_right = 20.3243
-margin_bottom = -43.6821
+margin_left = -60.0843
+margin_top = -116.05
+margin_right = -20.0843
+margin_bottom = -102.05
+rect_scale = Vector2( 3, 4 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -294,7 +300,6 @@ z_index = -1
 shape = SubResource( 3 )
 
 [node name="Sprite" type="Sprite" parent="."]
-visible = false
 scale = Vector2( 0.3, 0.3 )
 texture = ExtResource( 3 )
 
